@@ -1,0 +1,5 @@
+FROM tomcat:7.0.88-jre7
+MAINTAINER veerendradevops
+EXPOSE 8080
+ADD gameoflife.war /var/lib/tomcat7/webapps
+CMD ["catalina.sh","run"]
