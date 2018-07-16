@@ -1,0 +1,20 @@
+FROM centos:7
+ENV GUNICORN_VERSION=19.7.1
+ENV DJANGO_VERSION=1.11.13
+ENV DJANGO_USER=appuser
+ENV DJANGO_PASSWORD=Veerendr@444
+ENV DJANGO_EMAIL=veerendratholeti@gmail.com
+ENV DJANGO_PROJECT=demo
+RUN yum -y install epel-release
+RUN yum -y install python-devel python-setuptools python-pip
+RUN pip install --upgrade pip
+RUN pip install virtualenv
+RUN pip install gunicorn==$GUNICORN_VERSION
+RUN pip install django==$DJANGO_VERSION
+RUN django-admin startproject $DJANGO_PROJECT
+WORKDIR $DJANGO_PROJECT
+RUN python manage.py migrate
+RUN echo "from django.contrib.auth.models import User; User.objects.create_superuser('$DJANGO_USER','$DJANGO_EMAIL','$DJANGO_PASSWORD')" | python manage.py shell
+RUN sed -i -e "/^ALLOW/s/\[\]/['*']/" $DJANGO_PROJECT/settings.py
+CMD gunicorn $DJANGO_PROJECT.wsgi -b 0.0.0.0:8000
+EXPOSE 8000
